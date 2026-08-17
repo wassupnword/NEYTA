@@ -133,14 +133,28 @@ class ServiceSection(QGroupBox):
 
     def load(self) -> None:
         for field in self.spec.fields:
+            widget = self.fields[field.name]
+            if field.secret:
+                # Reading a Keychain item can show a macOS authorization
+                # dialog. Never fan those dialogs out merely because the
+                # settings page was constructed or opened.
+                widget.setText("")
+                if isinstance(widget, QLineEdit):
+                    widget.setPlaceholderText(
+                        "Saved in Keychain — enter a new value to replace it"
+                    )
+                continue
             value = self.settings.credential(self.spec.key, field.name) or ""
-            self.fields[field.name].setText(value)
+            widget.setText(value)
 
     def save(self) -> None:
         for field in self.spec.fields:
-            self.settings.set_credential(
-                self.spec.key, field.name, self.fields[field.name].text()
-            )
+            value = self.fields[field.name].text()
+            # A blank masked field means "leave the saved value alone". The
+            # adjacent Clear button remains the explicit way to delete it.
+            if field.secret and not value:
+                continue
+            self.settings.set_credential(self.spec.key, field.name, value)
 
     def _clear(self) -> None:
         self.settings.clear_service(self.spec.key)
@@ -350,16 +364,14 @@ class EngineChooser(QGroupBox):
     def _refresh_note(self) -> None:
         option = self.current_option()
         text = option.note
-        has_key = bool(
-            option.service and self.settings.credential(option.service, "api_key")
-        )
-        if option.service and not has_key:
+        if option.service:
             text += (
-                f"\n\nNo key yet — fill in {option.service.upper()} below and "
-                "save. Until then this stays on the free engine."
+                f"\n\nEnter or replace the {option.service.upper()} key below "
+                "if needed. Saved credentials stay in Keychain and are only "
+                "requested when this service runs."
             )
         self.note.setText(text)
-        self.check_button.setVisible(option.paid and has_key)
+        self.check_button.setVisible(option.paid)
 
     def show_note(self, text: str) -> None:
         """Say something specific in place of the standing description — the
@@ -536,6 +548,10 @@ class SettingsPage(QWidget):
         from ..core.lalal import LalalError, LalalSeparator
 
         key = self.sections["lalal"].values().get("api_key", "")
+        if not key:
+            # Check plan is an explicit request to use this credential, unlike
+            # opening the app or visiting Settings.
+            key = self.settings.credential("lalal", "api_key") or ""
         if not key:
             self.stem_engine.show_note("Paste a licence key below first.")
             return

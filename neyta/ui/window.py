@@ -276,9 +276,10 @@ class MainWindow(QMainWindow):
         self.calibration = stems_core.Calibration(
             path=self.services.paths.support / "calibration.json"
         )
-        #: Local UVR or the cloud, whichever Settings says. Rebuilt whenever
-        #: settings are saved, so switching engines takes effect immediately.
-        self.separator = stems_core.separator_for(self.settings, self.calibration)
+        # Do not read paid-service credentials while opening the window.
+        # The requested separator is resolved when separation is explicitly
+        # started instead.
+        self.separator = stems_core.StemSeparator(calibration=self.calibration)
 
         self.phrase_panel = PhrasePanel()
 
@@ -697,8 +698,18 @@ class MainWindow(QMainWindow):
         Called from the same place the placeholder is refreshed, because they
         are one fact shown twice: which engine your words are about to go to.
         """
-        self.phrase_panel.set_engine(self.settings.phrase_engine)
+        self.phrase_panel.set_engine(self._selected_phrase_engine())
         self._refresh_placeholder()
+
+    def _selected_phrase_engine(self) -> config.EngineOption:
+        """The displayed choice, without touching its Keychain credential."""
+        key = str(self.settings.get(
+            "phrase/engine", config.DEFAULT_PHRASE_ENGINE
+        ))
+        try:
+            return config.phrase_engine(key)
+        except ValueError:
+            return config.phrase_engine(config.DEFAULT_PHRASE_ENGINE)
 
     def _refresh_placeholder(self) -> None:
         """The field says which service it is pointed at, so the tab you are
@@ -711,7 +722,7 @@ class MainWindow(QMainWindow):
         if self.tab_key != "youtube":
             self.search.setPlaceholderText(f"Searching {self.provider.label}…")
             return
-        option = self.settings.phrase_engine
+        option = self._selected_phrase_engine()
         if option.key == "builtin":
             self.search.setPlaceholderText("Searching YouTube by captions…")
             return
@@ -861,15 +872,14 @@ class MainWindow(QMainWindow):
         self.select_group(GROUP_SETTINGS)
 
     def _on_settings_saved(self) -> None:
-        """Everything that was built from a setting is rebuilt from the new one.
+        """Refresh non-secret state after settings are saved.
 
-        Credentials feed the yt-dlp engines, and the two swappable jobs are a
-        choice of engine — so a key pasted or an engine switched takes effect
-        on the next search, not on the next launch.
+        Provider engines carry ordinary settings such as the YouTube cookie
+        path. Paid-engine credentials stay lazy and are resolved only when the
+        corresponding operation is explicitly started.
         """
         self._update_folder_label()
         self.providers = self._build_providers()
-        self.separator = stems_core.separator_for(self.settings, self.calibration)
         self._refresh_phrase_engine()
 
     def _on_shuffled(self, tracks) -> None:
@@ -1005,13 +1015,14 @@ class MainWindow(QMainWindow):
         """
         if not choice.separates:
             return
-        if not self.separator.available():
+        # Credential access belongs to this explicit action, never startup.
+        separator = stems_core.separator_for(self.settings, self.calibration)
+        if not separator.available():
             # The reason belongs to the engine: one of them is missing a build,
             # the other is missing a key.
-            self.statusBar().showMessage(self.separator.unavailable_note)
+            self.statusBar().showMessage(separator.unavailable_note)
             return
 
-        separator = self.separator
         keys = list(choice.stems)
         fmt = choice.fmt
         out_dir = Path(choice.dest_dir)

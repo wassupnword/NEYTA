@@ -709,6 +709,33 @@ def window(qapp, tmp_path):
 
 
 class TestGroups:
+    def test_startup_does_not_read_paid_engine_keys(self, qapp, tmp_path):
+        from neyta.app import Services
+        from neyta.settings import FakeKeyring, SecretStore
+        from neyta.ui.window import MainWindow
+
+        class CountingKeyring(FakeKeyring):
+            def __init__(self):
+                super().__init__()
+                self.reads = []
+
+            def get_password(self, service, username):
+                self.reads.append((service, username))
+                return super().get_password(service, username)
+
+        services = Services(config.Paths.under(tmp_path), native=False)
+        backend = CountingKeyring()
+        services.settings.secrets = SecretStore(backend=backend)
+        services.settings.phrase_engine = "filmot"
+        services.settings.stem_engine = "lalal"
+
+        win = MainWindow(services)
+        try:
+            assert backend.reads == []
+        finally:
+            win.bridge.close()
+            services.shutdown()
+
     def test_group_one_is_a_tab_per_source(self, window):
         labels = [window.tabs.tabText(i) for i in range(window.tabs.count())]
         assert labels == [
@@ -1100,18 +1127,24 @@ class TestStemEngineInTheWindow:
 
         assert isinstance(window.separator, StemSeparator)
 
-    def test_saving_settings_swaps_the_engine(self, window):
-        from neyta.core.lalal import LalalSeparator
+    def test_saving_settings_keeps_paid_credentials_lazy(self, window):
+        from neyta.core.stems import StemSeparator
 
         window.settings.stem_engine = "lalal"
         window.settings.set_credential("lalal", "api_key", "licence")
         window._on_settings_saved()
-        assert isinstance(window.separator, LalalSeparator)
+        assert isinstance(window.separator, StemSeparator)
 
-    def test_the_reason_it_cannot_run_belongs_to_the_engine(self, window):
+    def test_the_reason_it_cannot_run_belongs_to_the_engine(
+        self, window, monkeypatch
+    ):
         from neyta.core.lalal import LalalSeparator
+        from neyta.core import stems
 
-        window.separator = LalalSeparator(api_key="")
+        monkeypatch.setattr(
+            stems, "separator_for",
+            lambda settings, calibration: LalalSeparator(api_key=""),
+        )
         window._queue_separation(
             Path("nothing.wav"), make_result(),
             _choice_wanting_stems(window),
@@ -2108,11 +2141,12 @@ class TestPhraseInWindow:
         window._refresh_phrase_engine()
         assert "Filmot's caption index" in window.phrase_panel.summary.text()
 
-    def test_a_paid_engine_without_a_key_changes_nothing(self, window):
+    def test_a_paid_engine_choice_is_displayed_without_reading_its_key(self, window):
+        window.phrase_panel.enabled.setChecked(True)
         window.settings.phrase_engine = "filmot"
         window._refresh_phrase_engine()
-        assert "captions" in window.search.placeholderText()
-        assert window.phrase_panel.fuzzy.isEnabled()
+        assert "Filmot" in window.search.placeholderText()
+        assert not window.phrase_panel.fuzzy.isEnabled()
 
     def test_the_choice_is_persisted(self, window):
         window.phrase_panel.enabled.setChecked(True)
@@ -2175,6 +2209,34 @@ class TestSettingsPage:
 
         assert isinstance(page.sections["soulseek"].fields["share_dir"], PathField)
 
+    def test_building_settings_does_not_read_the_keychain(self, tmp_path):
+        from neyta.settings import (
+            FakeKeyring, MemoryPrefs, SecretStore, Settings,
+        )
+        from neyta.ui.settingspage import SettingsPage
+
+        class CountingKeyring(FakeKeyring):
+            def __init__(self):
+                super().__init__()
+                self.reads = []
+
+            def get_password(self, service, username):
+                self.reads.append((service, username))
+                return super().get_password(service, username)
+
+        backend = CountingKeyring()
+        settings = Settings(
+            paths=config.Paths.under(tmp_path).ensure(),
+            prefs=MemoryPrefs(),
+            secrets=SecretStore(backend=backend),
+        )
+        settings.secrets.set("soulseek", "password", "saved")
+
+        settings_page = SettingsPage(settings)
+        settings_page.reload()
+
+        assert backend.reads == []
+
     def test_saving_puts_the_password_in_the_keychain(self, page):
         page.sections["soulseek"].fields["password"].setText("hunter2")
         page.save()
@@ -2184,6 +2246,14 @@ class TestSettingsPage:
             "hunter2" in (page.settings.prefs.get_raw(k) or "")
             for k in page.settings.prefs.keys()
         )
+
+    def test_blank_secret_field_preserves_the_saved_value(self, page):
+        page.settings.set_credential("soulseek", "password", "saved")
+        page.reload()
+
+        assert page.sections["soulseek"].fields["password"].text() == ""
+        page.save()
+        assert page.settings.credential("soulseek", "password") == "saved"
 
     def test_saving_stores_the_username_as_an_ordinary_preference(self, page):
         page.sections["soulseek"].fields["username"].setText("me")
@@ -2292,9 +2362,9 @@ class TestEngineChoosers:
         page.save()
         assert page.settings.get("stems/engine") == "lalal"
 
-    def test_a_paid_engine_with_no_key_says_what_is_missing(self, page):
+    def test_a_paid_engine_explains_when_the_keychain_is_read(self, page):
         page.stem_engine.set_current("lalal")
-        assert "No key yet" in page.stem_engine.note.text()
+        assert "only requested when this service runs" in page.stem_engine.note.text()
 
     def test_and_does_not_actually_become_the_engine_until_it_has_one(self, page):
         # Chosen is not the same as in force. Without a key it would fail on
@@ -2307,11 +2377,7 @@ class TestEngineChoosers:
         page.save()
         assert page.settings.stem_engine.key == "lalal"
 
-    def test_the_plan_check_only_appears_once_there_is_a_key(self, page):
-        page.stem_engine.set_current("lalal")
-        assert not page.stem_engine.check_button.isVisibleTo(page.stem_engine)
-        page.settings.set_credential("lalal", "api_key", "licence")
-        page.stem_engine.set_current("uvr")
+    def test_the_paid_engine_offers_an_explicit_plan_check(self, page):
         page.stem_engine.set_current("lalal")
         assert page.stem_engine.check_button.isVisibleTo(page.stem_engine)
 
