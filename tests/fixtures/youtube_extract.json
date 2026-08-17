@@ -1,0 +1,151 @@
+{
+ "id": "jNQXAC9IVRw",
+ "title": "Me at the zoo",
+ "duration": 19,
+ "uploader": "jawed",
+ "channel": "jawed",
+ "webpage_url": "https://www.youtube.com/watch?v=jNQXAC9IVRw",
+ "thumbnails": [
+  {
+   "url": "https://i.ytimg.com/vi_webp/jNQXAC9IVRw/maxresdefault.webp"
+  }
+ ],
+ "view_count": 404727019,
+ "formats": [
+  {
+   "format_id": "139",
+   "ext": "m4a",
+   "abr": 49.14,
+   "tbr": 49.14,
+   "acodec": "mp4a.40.5",
+   "vcodec": "none",
+   "asr": 22050,
+   "filesize": 117526,
+   "filesize_approx": 117524,
+   "format_note": "low",
+   "protocol": "https"
+  },
+  {
+   "format_id": "249",
+   "ext": "webm",
+   "abr": 47.356,
+   "tbr": 47.356,
+   "acodec": "opus",
+   "vcodec": "none",
+   "asr": 48000,
+   "filesize": 112596,
+   "filesize_approx": 112594,
+   "format_note": "low",
+   "protocol": "https"
+  },
+  {
+   "format_id": "140",
+   "ext": "m4a",
+   "abr": 129.796,
+   "tbr": 129.796,
+   "acodec": "mp4a.40.2",
+   "vcodec": "none",
+   "asr": 44100,
+   "filesize": 309288,
+   "filesize_approx": 309287,
+   "format_note": "medium",
+   "protocol": "https"
+  },
+  {
+   "format_id": "251",
+   "ext": "webm",
+   "abr": 106.064,
+   "tbr": 106.064,
+   "acodec": "opus",
+   "vcodec": "none",
+   "asr": 48000,
+   "filesize": 252182,
+   "filesize_approx": 252180,
+   "format_note": "medium",
+   "protocol": "https"
+  },
+  {
+   "format_id": "160",
+   "ext": "mp4",
+   "abr": 0,
+   "tbr": 82.513,
+   "acodec": "none",
+   "vcodec": "avc1.4d400b",
+   "filesize": 195278,
+   "filesize_approx": 195277,
+   "format_note": "144p",
+   "protocol": "https"
+  },
+  {
+   "format_id": "278",
+   "ext": "webm",
+   "abr": 0,
+   "tbr": 78.293,
+   "acodec": "none",
+   "vcodec": "vp9",
+   "filesize": 185292,
+   "filesize_approx": 185290,
+   "format_note": "144p",
+   "protocol": "https"
+  },
+  {
+   "format_id": "134",
+   "ext": "mp4",
+   "abr": 0,
+   "tbr": 136.218,
+   "acodec": "none",
+   "vcodec": "avc1.4d400c",
+   "filesize": 322379,
+   "filesize_approx": 322376,
+   "format_note": "240p",
+   "protocol": "https"
+  },
+  {
+   "format_id": "133",
+   "ext": "mp4",
+   "abr": 0,
+   "tbr": 182.995,
+   "acodec": "none",
+   "vcodec": "avc1.4d400c",
+   "filesize": 433081,
+   "filesize_approx": 433080,
+   "format_note": "240p",
+   "protocol": "https"
+  },
+  {
+   "format_id": "18",
+   "ext": "mp4",
+   "tbr": 266.531,
+   "acodec": "mp4a.40.2",
+   "vcodec": "avc1.42001E",
+   "asr": 44100,
+   "filesize_approx": 635110,
+   "format_note": "240p",
+   "protocol": "https"
+  },
+  {
+   "format_id": "242",
+   "ext": "webm",
+   "abr": 0,
+   "tbr": 123.838,
+   "acodec": "none",
+   "vcodec": "vp9",
+   "filesize": 293080,
+   "filesize_approx": 293078,
+   "format_note": "240p",
+   "protocol": "https"
+  },
+  {
+   "format_id": "395",
+   "ext": "mp4",
+   "abr": 0,
+   "tbr": 94.556,
+   "acodec": "none",
+   "vcodec": "av01.0.00M.08.0.110.05.01.06.0",
+   "filesize": 223779,
+   "filesize_approx": 223778,
+   "format_note": "240p",
+   "protocol": "https"
+  }
+ ]
+}

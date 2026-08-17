@@ -1,0 +1,2 @@
+# soulseek_api only needs an HTTP client.
+requests>=2.31.0

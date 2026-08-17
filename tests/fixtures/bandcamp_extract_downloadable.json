@@ -1,0 +1,103 @@
+{
+ "id": "745588073",
+ "title": "oylumtanis - Burial - Archangel",
+ "track": "Burial - Archangel",
+ "album": "Burial - Archangel",
+ "duration": 180.01,
+ "uploader": "oylumtanis",
+ "artist": "oylumtanis",
+ "artists": [
+  "oylumtanis"
+ ],
+ "url": "https://popplers5.bandcamp.com/download/track?enc=alac&fsig=1e957e10584f2ab3442e79783add6e16&id=745588073&ts=1786713650.428497199",
+ "webpage_url": "https://oylumtanis.bandcamp.com/track/burial-archangel",
+ "thumbnails": [
+  {
+   "url": "https://f4.bcbits.com/img/a4109012237_5.jpg"
+  }
+ ],
+ "formats": [
+  {
+   "format_id": "mp3-128",
+   "ext": "mp3",
+   "abr": 128,
+   "tbr": 128,
+   "acodec": "mp3",
+   "vcodec": "none",
+   "filesize_approx": 2880160,
+   "protocol": "https"
+  },
+  {
+   "format_id": "mp3-v0",
+   "ext": "mp3",
+   "acodec": "mp3",
+   "vcodec": "none",
+   "filesize": 5700000,
+   "format_note": "MP3 V0",
+   "protocol": "https"
+  },
+  {
+   "format_id": "mp3-320",
+   "ext": "mp3",
+   "acodec": "mp3",
+   "vcodec": "none",
+   "filesize": 6900000,
+   "format_note": "MP3 320",
+   "protocol": "https"
+  },
+  {
+   "format_id": "aac-hi",
+   "ext": "m4a",
+   "acodec": "aac",
+   "vcodec": "none",
+   "filesize": 3700000,
+   "format_note": "AAC",
+   "protocol": "https"
+  },
+  {
+   "format_id": "vorbis",
+   "ext": "ogg",
+   "acodec": "vorbis",
+   "vcodec": "none",
+   "filesize": 3000000,
+   "format_note": "Ogg Vorbis",
+   "protocol": "https"
+  },
+  {
+   "format_id": "aiff-lossless",
+   "ext": "aiff",
+   "acodec": "aiff",
+   "vcodec": "none",
+   "filesize": 30300000,
+   "format_note": "AIFF",
+   "protocol": "https"
+  },
+  {
+   "format_id": "wav",
+   "ext": "wav",
+   "acodec": "wav",
+   "vcodec": "none",
+   "filesize": 30300000,
+   "format_note": "WAV",
+   "protocol": "https"
+  },
+  {
+   "format_id": "flac",
+   "ext": "flac",
+   "acodec": "flac",
+   "vcodec": "none",
+   "filesize": 16600000,
+   "format_note": "FLAC",
+   "protocol": "https"
+  },
+  {
+   "format_id": "falac",
+   "ext": "m4a",
+   "acodec": "alac",
+   "vcodec": "none",
+   "filesize": 17200000,
+   "format_note": "ALAC",
+   "protocol": "https"
+  }
+ ]
+}

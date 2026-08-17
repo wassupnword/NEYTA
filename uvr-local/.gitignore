@@ -1,0 +1,9 @@
+# Regenerable by ./setup.sh — never commit these.
+.venv/
+bin/
+python/
+models/
+.ffmpeg-shim/
+install.log
+separated/
+__pycache__/

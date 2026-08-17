@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Convenience wrapper: ./uvr song.wav -p stems
+# Runs uvr.py with this folder's venv, from anywhere.
+set -euo pipefail
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PY="$HERE/.venv/bin/python"
+if [ ! -x "$PY" ]; then
+    echo "[uvr] not installed yet — run $HERE/setup.sh" >&2
+    exit 1
+fi
+exec "$PY" "$HERE/uvr.py" "$@"

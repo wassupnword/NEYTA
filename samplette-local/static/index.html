@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Samplette Local</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>&#127911;</text></svg>">
+</head>
+<body>
+
+<nav id="nav">
+  <div class="brand">
+    <span class="brand-mark">◈</span>
+    <span class="brand-name">samplette<span class="brand-dim">·local</span></span>
+  </div>
+  <div class="nav-right">
+    <div id="lib-status" class="chip" title="Local library">
+      <span class="dot" id="crawl-dot"></span>
+      <span id="lib-count">0</span> tracks
+    </div>
+    <button class="icon-btn" id="btn-settings" title="Library settings">⚙</button>
+  </div>
+</nav>
+
+<main id="layout">
+
+  <!-- ── metadata ─────────────────────────────────────────────── -->
+  <section class="panel col-meta">
+    <h2 class="panel-title">Metadata</h2>
+    <dl id="meta-list" class="meta">
+      <div class="meta-row"><dt>Artist</dt><dd data-f="artist">—</dd></div>
+      <div class="meta-row"><dt>Release</dt><dd data-f="release">—</dd></div>
+      <div class="meta-row"><dt>Year</dt><dd data-f="year">—</dd></div>
+      <div class="meta-row"><dt>Channel</dt><dd data-f="yt_channel">—</dd></div>
+      <div class="meta-row"><dt>Views</dt><dd data-f="views_str">—</dd></div>
+      <div class="meta-row"><dt>Key</dt><dd data-f="musical_key">—</dd></div>
+      <div class="meta-row"><dt>Tempo</dt><dd data-f="tempo_str">—</dd></div>
+      <div class="meta-row"><dt>Genre</dt><dd data-f="genres">—</dd></div>
+      <div class="meta-row"><dt>Style</dt><dd data-f="styles">—</dd></div>
+      <div class="meta-row"><dt>Region</dt><dd data-f="region">—</dd></div>
+      <div class="meta-row"><dt>Label</dt><dd data-f="label">—</dd></div>
+      <div class="meta-row"><dt>Copyright</dt><dd data-f="copyright">—</dd></div>
+      <div class="meta-row"><dt>℗</dt><dd data-f="p_copyright">—</dd></div>
+    </dl>
+    <p class="src-note">Data from <b>Discogs</b>, <b>AcousticBrainz</b> and <b>YouTube</b></p>
+
+    <div class="track-actions">
+      <button class="act" data-act="playlist-add">＋ Add to playlist</button>
+      <button class="act" data-act="note">✎ Notes</button>
+      <button class="act" data-act="rel-release">▤ More from this release</button>
+      <button class="act" data-act="rel-artist">☺ More from this artist</button>
+      <button class="act" data-act="rel-channel">▷ More from this channel</button>
+      <button class="act" data-act="rel-label">◉ More from this label</button>
+      <button class="act" data-act="rel-similar">✦ More like this</button>
+    </div>
+  </section>
+
+  <!-- ── player ───────────────────────────────────────────────── -->
+  <section class="col-player">
+    <div class="player-card">
+      <header class="player-head">
+        <div id="chan-avatar" class="avatar">?</div>
+        <div class="head-text">
+          <div id="yt-title" class="yt-title">Building your library…</div>
+          <div id="yt-channel" class="yt-channel">—</div>
+        </div>
+        <a id="watch-yt" class="watch-yt" target="_blank" rel="noopener"
+           title="Watch on YouTube">Watch on YouTube ↗</a>
+      </header>
+
+      <div class="video-wrap">
+        <div id="player"></div>
+        <div id="video-overlay" class="overlay">
+          <div class="spinner"></div>
+          <p id="overlay-text">Starting up…</p>
+          <p id="overlay-sub" class="overlay-sub"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="ctl" id="c-fav"     title="Favorite (E)"><span>♥</span>Favorite</button>
+      <button class="ctl" id="c-filters" title="Filters (S)"><span>⚙</span>Filters<i id="filter-count" class="badge"></i></button>
+      <button class="ctl ctl-primary" id="c-shuffle" title="Shuffle (D)"><span>⇄</span>Samplette</button>
+      <button class="ctl" id="c-bpm"     title="Tap for tempo (R)"><span>♪</span><i id="bpm-read">Tap</i></button>
+      <button class="ctl" id="c-copy"    title="Copy link (C)"><span>⧉</span>Copy</button>
+    </div>
+
+    <p class="hint">
+      <kbd>D</kbd> shuffle · <kbd>Q</kbd> for you · <kbd>W</kbd> popular ·
+      <kbd>E</kbd> favorite · <kbd>S</kbd> filters · <kbd>A</kbd> metadata ·
+      <kbd>R</kbd> tap tempo · <kbd>C</kbd> copy
+    </p>
+  </section>
+
+  <!-- ── playlist ─────────────────────────────────────────────── -->
+  <aside class="panel col-list">
+    <div class="list-head">
+      <select id="mode-select" class="mode-select">
+        <optgroup label="Discover">
+          <option value="random">Random</option>
+          <option value="for_you">For you</option>
+          <option value="popular">Popular</option>
+        </optgroup>
+        <optgroup label="Yours">
+          <option value="favorites">Favorites</option>
+          <option value="recent_history">Recent history</option>
+        </optgroup>
+        <optgroup label="Playlists" id="opt-playlists"></optgroup>
+      </select>
+      <button class="icon-btn" id="btn-list-menu" title="Playlist actions">⋯</button>
+      <div id="list-menu" class="menu hidden">
+        <button data-act="new-playlist">New playlist</button>
+        <button data-act="export">Export as CSV</button>
+        <button data-act="delete-playlist">Delete playlist</button>
+      </div>
+    </div>
+    <div id="track-list" class="track-list"></div>
+  </aside>
+</main>
+
+<!-- ── filters modal ──────────────────────────────────────────── -->
+<div id="m-filters" class="modal hidden">
+  <div class="modal-box">
+    <header><h3>Filters</h3><button class="x" data-close>×</button></header>
+    <div class="modal-body">
+      <div class="facet" data-facet="genres">
+        <div class="facet-head"><h4>Genre</h4>
+          <div class="facet-tools">
+            <label><input type="checkbox" data-opt="match_all"> Match all</label>
+            <label><input type="checkbox" data-opt="exclude"> Exclude</label>
+            <button class="link" data-reset>Reset</button>
+          </div>
+        </div>
+        <input class="facet-search" placeholder="Search genres…">
+        <div class="chips"></div>
+      </div>
+
+      <div class="facet" data-facet="styles">
+        <div class="facet-head"><h4>Style</h4>
+          <div class="facet-tools">
+            <label><input type="checkbox" data-opt="match_all"> Match all</label>
+            <label><input type="checkbox" data-opt="exclude"> Exclude</label>
+            <button class="link" data-reset>Reset</button>
+          </div>
+        </div>
+        <input class="facet-search" placeholder="Search styles…">
+        <div class="chips"></div>
+      </div>
+
+      <div class="facet" data-facet="regions">
+        <div class="facet-head"><h4>Region</h4>
+          <div class="facet-tools">
+            <label><input type="checkbox" data-opt="exclude"> Exclude</label>
+            <button class="link" data-reset>Reset</button>
+          </div>
+        </div>
+        <input class="facet-search" placeholder="Search regions…">
+        <div class="chips"></div>
+      </div>
+
+      <div class="facet" data-facet="keys">
+        <div class="facet-head"><h4>Key</h4>
+          <div class="facet-tools">
+            <label><input type="checkbox" data-opt="exclude"> Exclude</label>
+            <button class="link" data-reset>Reset</button>
+          </div>
+        </div>
+        <input class="facet-search" placeholder="Search keys…">
+        <div class="chips"></div>
+      </div>
+
+      <div class="range-grid">
+        <div class="range" data-range="tempo"><h4>Tempo</h4>
+          <input type="number" data-b="min" placeholder="Min"><span>–</span>
+          <input type="number" data-b="max" placeholder="Max">
+        </div>
+        <div class="range" data-range="views"><h4>Views</h4>
+          <input type="number" data-b="min" placeholder="Min"><span>–</span>
+          <input type="number" data-b="max" placeholder="Max">
+        </div>
+        <div class="range" data-range="year"><h4>Year</h4>
+          <input type="number" data-b="min" placeholder="Min"><span>–</span>
+          <input type="number" data-b="max" placeholder="Max">
+        </div>
+      </div>
+
+      <label class="switch-row">
+        <input type="checkbox" id="f-topic"> Topic channels only
+        <small>Auto-generated "Artist - Topic" uploads. Cleanest audio, least noise.</small>
+      </label>
+      <div id="filter-preview" class="preview"></div>
+    </div>
+    <footer>
+      <button class="btn-ghost" id="f-reset">Reset all</button>
+      <button class="btn-accent" id="f-apply">Apply</button>
+    </footer>
+  </div>
+</div>
+
+<!-- ── notes modal ────────────────────────────────────────────── -->
+<div id="m-note" class="modal hidden">
+  <div class="modal-box narrow">
+    <header><h3>Notes</h3><button class="x" data-close>×</button></header>
+    <div class="modal-body">
+      <p id="note-track" class="muted"></p>
+      <textarea id="note-body" rows="7" placeholder="What's usable here? Bars, key, where the break lands…"></textarea>
+    </div>
+    <footer><button class="btn-accent" id="note-save">Save</button></footer>
+  </div>
+</div>
+
+<!-- ── playlist picker ────────────────────────────────────────── -->
+<div id="m-playlist" class="modal hidden">
+  <div class="modal-box narrow">
+    <header><h3>Add to playlist</h3><button class="x" data-close>×</button></header>
+    <div class="modal-body">
+      <div id="pl-choices" class="pl-choices"></div>
+      <div class="new-pl">
+        <input id="pl-new-name" placeholder="New playlist name">
+        <button class="btn-accent" id="pl-create">Create</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── settings modal ─────────────────────────────────────────── -->
+<div id="m-settings" class="modal hidden">
+  <div class="modal-box">
+    <header><h3>Library</h3><button class="x" data-close>×</button></header>
+    <div class="modal-body">
+      <div id="stat-grid" class="stat-grid"></div>
+      <p class="muted small" id="crawl-stage"></p>
+      <h4 class="section-h">What to dig for</h4>
+      <p class="muted small">Comma-separated Discogs styles. Leave blank to roam
+        across everything. Changes apply to newly crawled records.</p>
+      <input id="seed-styles" placeholder="Minimal, Post-Punk, Spiritual Jazz…">
+      <div class="seed-years">
+        <input id="seed-year-from" type="number" placeholder="Year from">
+        <input id="seed-year-to" type="number" placeholder="Year to">
+      </div>
+    </div>
+    <footer>
+      <button class="btn-ghost" id="seed-clear">Roam freely</button>
+      <button class="btn-accent" id="seed-save">Save</button>
+    </footer>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

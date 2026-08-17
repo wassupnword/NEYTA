@@ -1,0 +1,61 @@
+{
+ "id": "2014818375",
+ "title": "Aphex twin - Xtal - Slowed",
+ "track": "Aphex twin - Xtal - Slowed",
+ "duration": 409.465,
+ "uploader": "idk bro",
+ "artist": "Aphex twin",
+ "artists": [
+  "Aphex twin"
+ ],
+ "url": "https://playback.media-streaming.soundcloud.cloud/fYIw5ivEfpjH/aac_160k/364755f7-2aa3-41b1-8b72-7f879b1c2c63/playlist.m3u8?expires=1786721257&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wbGF5YmFjay5tZWRpYS1zdHJlYW1pbmcuc291bmRjbG91ZC5jbG91ZC9mWUl3NWl2RWZwakgvYWFjXzE2MGsvMzY0NzU1ZjctMmFhMy00MWIxLThiNzItN2Y4NzliMWMyYzYzL3BsYXlsaXN0Lm0zdTg~ZXhwaXJlcz0xNzg2NzIxMjU3IiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzg2NzE0MTc3fX19XX0_&Signature=uedHzk-nneIvwy7nDWQcZ95u4B1fbcYY1oOyLekYcpT6Ho7OF8EkT0rBLSTEHQgP1uU0OIK5hIms0w0dNQUdGNWBVSC08H5VuVD8SLU~U8TSANysdMAH0-7xSteBMwDk4tm8TQOO-9XkX3xrxhbg44vid2cDuCyEbKXUN~8GYI9qK~Dwl45duG44KrApQz5NO~t6X1bq2nb6PS2HXn8gB~5ES6xqPA58nYllotP44lgDZ03wwEkHCiXCYpyoX5EmL0VZVL4kBtdth46AGcnK7NGutzQ8ylp55imnXY7-DLWKUeK5mzPQEkHXEy1ifaiB9O1VvufUIeWQ2pO1XQ7GFg__&Key-Pair-Id=K34606QXLEIRF3",
+ "webpage_url": "https://soundcloud.com/fucked-740863309/aphex-twin-xtal-slowed",
+ "thumbnails": [
+  {
+   "url": "https://i1.sndcdn.com/artworks-es5gHNw1bPcXrWAk-zA5ijQ-original.png"
+  }
+ ],
+ "view_count": 228873,
+ "formats": [
+  {
+   "format_id": "hls_mp3_1_0",
+   "ext": "mp3",
+   "abr": 128,
+   "tbr": 128,
+   "acodec": "mp3",
+   "vcodec": "none",
+   "filesize_approx": 6551440,
+   "protocol": "m3u8_native"
+  },
+  {
+   "format_id": "http_mp3_1_0",
+   "ext": "mp3",
+   "abr": 128,
+   "tbr": 128,
+   "acodec": "mp3",
+   "vcodec": "none",
+   "filesize_approx": 6551440,
+   "protocol": "http"
+  },
+  {
+   "format_id": "hls_aac_96k",
+   "ext": "m4a",
+   "abr": 96,
+   "tbr": 96,
+   "acodec": "mp4a.40.2",
+   "vcodec": "none",
+   "filesize_approx": 4913580,
+   "protocol": "m3u8_native"
+  },
+  {
+   "format_id": "hls_aac_160k",
+   "ext": "m4a",
+   "abr": 160,
+   "tbr": 160,
+   "acodec": "mp4a.40.2",
+   "vcodec": "none",
+   "filesize_approx": 8189299,
+   "protocol": "m3u8_native"
+  }
+ ]
+}

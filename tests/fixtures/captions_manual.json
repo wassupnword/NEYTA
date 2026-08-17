@@ -1,0 +1,50 @@
+{
+ "wireMagic": "pb3",
+ "events": [
+  {
+   "tStartMs": 1200,
+   "dDurationMs": 2160,
+   "segs": [
+    {
+     "utf8": "All right, so here we are, in front of the\nelephants"
+    }
+   ]
+  },
+  {
+   "tStartMs": 3400,
+   "dDurationMs": 3000,
+   "segs": [
+    {
+     "utf8": "and the cool thing about these guys\nis that they have"
+    }
+   ]
+  },
+  {
+   "tStartMs": 6500,
+   "dDurationMs": 2800,
+   "segs": [
+    {
+     "utf8": "really, really, really long trunks"
+    }
+   ]
+  },
+  {
+   "tStartMs": 9400,
+   "dDurationMs": 2600,
+   "segs": [
+    {
+     "utf8": "and that's cool"
+    }
+   ]
+  },
+  {
+   "tStartMs": 12100,
+   "dDurationMs": 3200,
+   "segs": [
+    {
+     "utf8": "and that's pretty much all there is to say"
+    }
+   ]
+  }
+ ]
+}

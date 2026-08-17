@@ -1,0 +1,31 @@
+{
+ "id": "963415949",
+ "title": "Burial - Archangel",
+ "track": "Archangel",
+ "album": "Untrue",
+ "duration": 238.427,
+ "uploader": "Burial",
+ "artist": "Burial",
+ "artists": [
+  "Burial"
+ ],
+ "url": "https://t4.bcbits.com/stream/42a81454a2cb87fddc99f86c696e2c58/mp3-128/963415949?p=0&ts=1786800050&t=9caa206edeeeddc7d3704dd9a1ed68e725892acd&token=1786800050_7507c09a7a72ed4ab8ddb8a1a50893b30feaabcb",
+ "webpage_url": "https://burial.bandcamp.com/track/archangel",
+ "thumbnails": [
+  {
+   "url": "https://f4.bcbits.com/img/a0104561231_5.jpg"
+  }
+ ],
+ "formats": [
+  {
+   "format_id": "mp3-128",
+   "ext": "mp3",
+   "abr": 128,
+   "tbr": 128,
+   "acodec": "mp3",
+   "vcodec": "none",
+   "filesize_approx": 3814832,
+   "protocol": "https"
+  }
+ ]
+}

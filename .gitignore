@@ -1,0 +1,33 @@
+.idea/
+.claude/
+.DS_Store
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Environments. Rebuilt by tools/setup.sh — never committed, because a venv
+# stores absolute paths and does not survive being moved (build plan §9).
+venv/
+.venv/
+.venv-neyta/
+
+# Runtime output
+downloads/
+separated/
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+
+# The app bundle is generated and tied to this checkout's absolute path.
+# Rebuild it with tools/make_app.py rather than committing it.
+NEYTA.app/
+*.iconset/
+
+# Test / tooling
+.pytest_cache/
+.coverage
+htmlcov/
+
+# `uv run` may create this alternate lock. tools/setup.sh uses the curated
+# requirements.lock.txt committed above.
+/uv.lock

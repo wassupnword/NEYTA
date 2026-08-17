@@ -1,0 +1,17 @@
+# Direct dependencies for uvr.py. Installed by ./setup.sh into ./.venv.
+#
+# audio-separator is the maintained pip port of the Ultimate Vocal Remover
+# engine (same BS-Roformer / MDX-Net / VR-Arch / Demucs checkpoints as the GUI).
+#
+# [cpu] is correct for Apple Silicon — CoreML/MPS is used where supported, and
+# the [gpu] extra pulls CUDA wheels that do not exist for macOS. On an NVIDIA
+# box, swap the line below for:  audio-separator[gpu]==0.44.5
+audio-separator[cpu]==0.44.5
+
+# Ships a static arm64 ffmpeg binary in the wheel. audio-separator shells out
+# to ffmpeg for anything that isn't a plain wav, and there is no Homebrew on
+# this machine, so setup.sh symlinks this into .venv/bin/ffmpeg.
+imageio-ffmpeg==0.6.0
+
+# For byte-identical rebuilds use the full transitive pin instead:
+#   uv pip install --python .venv/bin/python -r requirements.lock.txt
