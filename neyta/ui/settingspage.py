@@ -1,15 +1,7 @@
-"""Settings: credentials, folders, and the Soulseek daemon.
+"""Settings popup: credentials, folders, and the Soulseek daemon.
 
-A page in the window rather than a modal dialog. Settings is somewhere you go,
-the same way the search and the downloads are — and it is where you are sent
-when a service will not work until you have filled something in, which a modal
-made into an interruption rather than a destination. Being a page also means
-it is still there when you come back to it, and that the activity strip along
-the bottom keeps running while you read it.
-
-There is no OK button, because a page has nothing to dismiss: what is on
-screen is written when you leave, and re-read from where it actually lives
-when you arrive. The Save button is the same act done early.
+The modeless dialog keeps search and playback visible and usable behind it.
+Closing it saves the current values; Save applies them without closing.
 
 Rendered from the SERVICES declaration in neyta/settings.py rather than from a
 hand-written form, so a field added there appears here, is stored in the right
@@ -29,9 +21,9 @@ from pathlib import Path
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QCheckBox, QComboBox, QFileDialog, QFormLayout, QGroupBox, QHBoxLayout,
-    QLabel, QLineEdit, QMessageBox, QPushButton, QScrollArea, QVBoxLayout,
-    QWidget,
+    QCheckBox, QComboBox, QDialog, QFileDialog, QFormLayout, QGroupBox,
+    QHBoxLayout, QLabel, QLineEdit, QMessageBox, QPushButton, QScrollArea,
+    QVBoxLayout, QWidget,
 )
 
 from .. import config
@@ -382,6 +374,8 @@ class EngineChooser(QGroupBox):
 class SettingsPage(QWidget):
     """Everything re-editable, in one place."""
 
+    close_requested = Signal()
+
     #: The values have been written. The window rebuilds what depends on them
     #: — the engines carry the cookie file, the tray shows the folder.
     saved = Signal()
@@ -476,6 +470,9 @@ class SettingsPage(QWidget):
         self.save_button = QPushButton("Save")
         self.save_button.setAutoDefault(False)
         self.save_button.clicked.connect(self.save)
+        self.done_button = QPushButton("Done")
+        self.done_button.setDefault(True)
+        self.done_button.clicked.connect(self.close_requested)
         # Wipe at the far end from Save: they are both endings, and the one
         # that cannot be undone should not be next to the one you press every
         # time.
@@ -483,6 +480,7 @@ class SettingsPage(QWidget):
         footer.addWidget(self.wipe_button)
         footer.addStretch(1)
         footer.addWidget(self.save_button)
+        footer.addWidget(self.done_button)
 
         layout = QVBoxLayout(self)
         layout.addWidget(scroll, 1)
@@ -659,3 +657,34 @@ class SettingsPage(QWidget):
             f"{removed.get('cache_rows', 0)} cache entries and "
             f"{removed.get('temp_files', 0)} temporary file(s) removed.",
         )
+
+
+class SettingsDialog(QDialog):
+    """Modeless settings window that saves once when it closes."""
+
+    def __init__(self, settings, bootstrap=None, cache=None, lucida=None,
+                 parent=None) -> None:
+        super().__init__(parent)
+        self.setWindowTitle("NEYTA Settings")
+        self.setModal(False)
+        self.resize(780, 720)
+
+        self.page = SettingsPage(
+            settings, bootstrap=bootstrap, cache=cache, lucida=lucida,
+            parent=self,
+        )
+        self.page.close_requested.connect(self.close)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.page)
+
+    def show_settings(self) -> None:
+        self.page.reload()
+        self.show()
+        self.raise_()
+        self.activateWindow()
+
+    def closeEvent(self, event) -> None:
+        self.page.save()
+        super().closeEvent(event)

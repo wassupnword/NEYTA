@@ -1016,49 +1016,42 @@ class TestGroups:
         window.page_bar.selected.emit(PAGE_SEARCH)
         assert window.group == GROUP_SOURCES
 
-    def test_settings_is_a_page_and_not_a_window(self, window):
-        from neyta.ui.window import GROUP_SETTINGS
-
+    def test_settings_opens_as_a_modeless_window(self, window):
+        group = window.group
+        page = window.pages.currentWidget()
         window.open_settings()
-        assert window.group == GROUP_SETTINGS
-        assert window.pages.currentWidget() is window.settings_page
-        # No modal standing in front of the app, and the strip below it is
-        # still reporting on whatever is running.
-        assert not window.settings_page.isWindow()
+
+        assert window.settings_dialog.isWindow()
+        assert window.settings_dialog.isVisible()
+        assert not window.settings_dialog.isModal()
+        assert window.group == group
+        assert window.pages.currentWidget() is page
         assert window.activity.isVisibleTo(window)
 
-    def test_the_gear_fills_in_while_you_are_in_settings(self, window):
-        from neyta.ui.window import GROUP_SOURCES
-
+    def test_settings_does_not_change_page_selection(self, window):
         window.open_settings()
-        assert window.settings_button.isChecked()
-        assert window.page_bar.current() is None
-        window.select_group(GROUP_SOURCES)
         assert not window.settings_button.isChecked()
+        assert window.page_bar.current() == "search"
 
-    def test_the_sources_are_gone_in_settings_too(self, window):
+    def test_the_sources_remain_usable_behind_settings(self, window):
         window.open_settings()
-        assert not window.tabs.isVisibleTo(window)
+        assert window.tabs.isVisibleTo(window)
+        assert window.search.isEnabled()
 
-    def test_leaving_settings_is_what_saves_them(self, window, tmp_path):
-        # The page has no OK button, so walking away has to mean the same as
-        # pressing one.
-        from neyta.ui.window import GROUP_SOURCES
-
+    def test_closing_settings_saves_them(self, window, tmp_path):
         target = tmp_path / "Elsewhere"
         target.mkdir()
         window.open_settings()
         window.settings_page.downloads.setText(str(target))
-        window.select_group(GROUP_SOURCES)
+        window.settings_page.done_button.click()
+        assert not window.settings_dialog.isVisible()
         assert Path(window.settings.download_dir) == target
 
     def test_arriving_re_reads_what_is_true_now(self, window, tmp_path):
         # The folder can be changed from the downloaded page while settings
         # is off screen.
-        from neyta.ui.window import GROUP_SOURCES
-
         window.open_settings()
-        window.select_group(GROUP_SOURCES)
+        window.settings_dialog.close()
         target = tmp_path / "Later"
         target.mkdir()
         window.settings.download_dir = target
@@ -1102,7 +1095,7 @@ class TestTheSpotifyTab:
         assert not window.lucida.is_running()
 
     def test_searching_without_the_checkout_says_where_to_look(self, window):
-        from neyta.ui.window import GROUP_SETTINGS, TABS
+        from neyta.ui.window import GROUP_SOURCES, TABS
 
         if window.lucida.installed():
             pytest.skip("lucida-flow is installed on this machine")
@@ -1112,8 +1105,9 @@ class TestTheSpotifyTab:
         window.search.setText("hotel california")
         window.run_search()
         assert "lucida-flow" in window.statusBar().currentMessage()
-        # ...and it takes you to the page that explains it.
-        assert window.group == GROUP_SETTINGS
+        # ...and opens the popup that explains it without leaving search.
+        assert window.settings_dialog.isVisible()
+        assert window.group == GROUP_SOURCES
 
     def test_the_tab_carries_its_own_slow_search_warning(self, window):
         from neyta.ui.window import SEARCH_NOTE

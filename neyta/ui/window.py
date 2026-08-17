@@ -43,7 +43,7 @@ from .onboarding import WelcomeDialog
 from .pagebar import ICON_FOLDER, ICON_GEAR, ICON_SEARCH, PageBar, PageButton
 from .phrasepanel import PhrasePanel
 from .qtbridge import JobBridge
-from .settingspage import SettingsPage
+from .settingspage import SettingsDialog
 from .shufflepanel import ShufflePanel
 from .tabbar import ColourTabBar
 from .tray import DragTray
@@ -63,15 +63,10 @@ TABS: tuple[tuple[str, type[Provider]], ...] = (
     ("spotify", LucidaProvider),
 )
 
-#: The three pages. Group 1 is the four source tabs, centred; group 2 is the
-#: folder, and group 3 the gear, each of which takes the whole window rather
-#: than sharing it. They are different activities — finding a track, working
-#: with the files you already have, and setting the app up — so the pages sit
-#: in the corners and the sources in the middle, rather than adjacent, where
-#: the row would read as seven of the same thing.
+#: The two pages: source tabs and downloaded files. Settings uses the gear and
+#: opens in its own modeless dialog.
 GROUP_SOURCES = 1
 GROUP_DOWNLOADED = 2
-GROUP_SETTINGS = 3
 
 #: What each page is called, where it has to be said in words: the tooltip on
 #: its icon, and what a screen reader reads out.
@@ -82,12 +77,10 @@ SETTINGS_LABEL = "Settings"
 #: The keys the page icons are known by.
 PAGE_SEARCH = "search"
 PAGE_DOWNLOADED = "downloaded"
-PAGE_SETTINGS = "settings"
 #: Which group each icon stands for, and the way back.
 PAGE_GROUPS = {
     PAGE_SEARCH: GROUP_SOURCES,
     PAGE_DOWNLOADED: GROUP_DOWNLOADED,
-    PAGE_SETTINGS: GROUP_SETTINGS,
 }
 GROUP_PAGES = {group: page for page, group in PAGE_GROUPS.items()}
 
@@ -265,11 +258,8 @@ class MainWindow(QMainWindow):
         self.download_button = self.download_bar.button
         self.ceiling = self.download_bar.note
         self.folder_label = self.download_bar.destination
-        # Settings is a page, so its gear is one of the page icons — same box,
-        # same drawn line, filled in while you are on it. It keeps the far
-        # corner rather than joining the other two: it is the one page that is
-        # about the app instead of about music, and it is not somewhere you
-        # pass through while you work.
+        # Settings keeps the far corner because it configures the app rather
+        # than navigating between the two main pages.
         self.settings_button = PageButton(
             ICON_GEAR, SETTINGS_LABEL, SETTINGS_COLOUR
         )
@@ -335,10 +325,11 @@ class MainWindow(QMainWindow):
         left_layout.addWidget(self.table, 1)
         self._left_layout = left_layout
 
-        self.settings_page = SettingsPage(
+        self.settings_dialog = SettingsDialog(
             self.settings, bootstrap=self.slskd, cache=self.services.cache,
-            lucida=self.lucida,
+            lucida=self.lucida, parent=self,
         )
+        self.settings_page = self.settings_dialog.page
 
         # One page per group. A stack rather than a splitter: they are
         # different activities, not halves of one, and each wants the whole
@@ -346,12 +337,10 @@ class MainWindow(QMainWindow):
         self.pages = QStackedWidget()
         self.pages.addWidget(self.search_page)      # group 1
         self.pages.addWidget(self.tray)             # group 2
-        self.pages.addWidget(self.settings_page)    # group 3
         #: Which widget each group shows.
         self.group_pages = {
             GROUP_SOURCES: self.search_page,
             GROUP_DOWNLOADED: self.tray,
-            GROUP_SETTINGS: self.settings_page,
         }
 
         #: The bar's own three-column grid — the same centring the header
@@ -463,17 +452,11 @@ class MainWindow(QMainWindow):
         player are all left as they are, so coming back finds the search
         exactly where you left it.
         """
-        # Leaving settings is what commits them — the page has no OK button,
-        # so walking away has to mean the same as pressing one.
-        if self._group is GROUP_SETTINGS and group is not GROUP_SETTINGS:
-            self.settings_page.save()
         self._group = group
         if group is not GROUP_SOURCES:
             self.shuffle_popup.hide()
         if group is GROUP_DOWNLOADED:
             self._unseen = 0  # looking at them is what marks them seen
-        if group is GROUP_SETTINGS:
-            self.settings_page.reload()
         self.pages.setCurrentWidget(self.group_pages[group])
         # Nothing to choose between anywhere but the search page, so the
         # sources go away rather than sit there inert.
@@ -492,14 +475,14 @@ class MainWindow(QMainWindow):
         of the service it is pointed at, so the corner and the tab row agree
         about which one that is.
 
-        The gear lives in the other corner rather than in the bar, so it is
-        set from here too: one place decides which icon is lit.
+        The gear lives in the other corner but opens a dialog, so it never
+        participates in page selection.
         """
         page = GROUP_PAGES[self._group]
         self.page_bar.set_colour(PAGE_SEARCH, TAB_COLOURS[self.tab_key])
         self.page_bar.set_badge(PAGE_DOWNLOADED, self._unseen)
         self.page_bar.set_current(page)
-        self.settings_button.setChecked(page == PAGE_SETTINGS)
+        self.settings_button.setChecked(False)
 
     def _refresh_controls(self) -> None:
         """Show the bottom bar for a selected result, playback, or transfer."""
@@ -507,12 +490,9 @@ class MainWindow(QMainWindow):
             self._group is GROUP_SOURCES and self.download_button.isEnabled()
         )
         self.download_bar.setVisible(
-            self._group is not GROUP_SETTINGS
-            and (
-                selected_source
-                or self.download_bar.previewing
-                or self.download_bar.working
-            )
+            selected_source
+            or self.download_bar.previewing
+            or self.download_bar.working
         )
 
     def set_download_available(self, available: bool) -> None:
@@ -866,10 +846,8 @@ class MainWindow(QMainWindow):
         return False
 
     def open_settings(self) -> None:
-        """The gear, and where the welcome dialog sends you. A page, so a
-        half-filled login is somewhere you can leave and come back to rather
-        than a window standing in front of the app."""
-        self.select_group(GROUP_SETTINGS)
+        """Show the modeless settings window without changing app pages."""
+        self.settings_dialog.show_settings()
 
     def _on_settings_saved(self) -> None:
         """Refresh non-secret state after settings are saved.
