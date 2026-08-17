@@ -190,8 +190,7 @@ SOURCE_CEILING_KBPS: dict[str, int | None] = {
 }
 
 CEILING_NOTE: dict[str, str] = {
-    "youtube": "YouTube's best audio is ~129k AAC, or Opus at a variable "
-    "rate around it. Nothing here is close to 320.",
+    "youtube": "",
     "soundcloud": "SoundCloud's best audio stream is 160k AAC.",
     "bandcamp": "Bandcamp serves FLAC, WAV, AIFF and ALAC where the artist "
     "allows downloading, and a 128k MP3 preview where they do not.",

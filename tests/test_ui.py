@@ -1179,9 +1179,11 @@ class TestWindow:
         window.tabs.setCurrentIndex(2)
         assert window.provider.key == "bandcamp"
 
-    def test_the_ceiling_note_follows_the_tab(self, window):
+    def test_youtube_has_no_audio_ceiling_warning(self, window):
         window.tabs.setCurrentIndex(0)
-        assert "129k AAC" in window.ceiling.text()
+        assert window.ceiling.text() == ""
+
+    def test_other_source_notes_still_follow_the_tab(self, window):
         window.tabs.setCurrentIndex(1)
         assert "160k AAC" in window.ceiling.text()
 
