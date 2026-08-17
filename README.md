@@ -57,10 +57,10 @@ from Finder does.
 ```bash
 ./tools/setup.sh              # builds both environments, ~5 minutes
 .venv-neyta/bin/python -m neyta doctor
-.venv-neyta/bin/python tools/make_app.py
 ```
 
-Then double-click `NEYTA.app`, or drag it to the Dock.
+Then double-click the included `NEYTA.app`, or drag it to the Dock. Regenerate
+the launcher and its icon with `.venv-neyta/bin/python tools/make_app.py`.
 
 `doctor` prints what this machine can actually do:
 
@@ -79,10 +79,11 @@ Then double-click `NEYTA.app`, or drag it to the Dock.
 
 ### If you move the project folder
 
-Rerun `./tools/setup.sh`, then `tools/make_app.py`. Virtualenvs store absolute
-paths and do not survive being moved — this repo has been bitten by that once
-already, so `doctor` checks for it and the app bundle says so in a dialog
-rather than failing silently.
+Rerun `./tools/setup.sh`. Virtualenvs store absolute paths and do not survive
+being moved — this repo has been bitten by that once already, so `doctor`
+checks for it and the app bundle says so in a dialog rather than failing
+silently. The checked-in app itself locates the repository relative to its
+own position.
 
 ---
 

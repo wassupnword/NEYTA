@@ -207,22 +207,22 @@ def module():
 
 class TestAppBundle:
     def test_the_launcher_is_valid_shell(self, module, tmp_path):
-        script = module.LAUNCHER.format(root=tmp_path)
+        script = module.render_launcher(tmp_path)
         (tmp_path / "launcher.sh").write_text(script)
         result = subprocess.run(
             ["bash", "-n", str(tmp_path / "launcher.sh")], capture_output=True
         )
         assert result.returncode == 0, result.stderr
 
-    def test_it_names_the_checkout_it_is_tied_to(self, module, tmp_path):
-        assert str(tmp_path) in module.LAUNCHER.format(root=tmp_path)
+    def test_the_repository_bundle_locates_its_checkout(self, module):
+        script = module.render_launcher()
+        assert 'dirname "$0"' in script
+        assert str(ROOT) not in script
 
-    def test_a_moved_checkout_produces_an_alert_not_a_silent_failure(
+    def test_a_missing_environment_produces_an_alert_not_a_silent_failure(
         self, module, tmp_path
     ):
-        """The same absolute-path problem that broke every venv in this repo
-        once already."""
-        script = module.LAUNCHER.format(root="/nonexistent/moved")
+        script = module.render_launcher(Path("/nonexistent/moved"))
         script = script.replace("/usr/bin/osascript -e", "echo ALERT:")
         launcher = tmp_path / "moved.sh"
         launcher.write_text(script)
@@ -236,8 +236,6 @@ class TestAppBundle:
         assert "setup.sh" in result.stdout
 
     def test_building_produces_a_launchable_bundle(self, module, tmp_path):
-        if not config.REPO_ROOT.joinpath(".venv-neyta/bin/python").exists():
-            pytest.skip("no built environment")
         bundle = module.build(tmp_path)
 
         assert bundle.name == "NEYTA.app"
@@ -254,8 +252,6 @@ class TestAppBundle:
         assert info["NSHighResolutionCapable"] is True
 
     def test_rebuilding_replaces_rather_than_accumulates(self, module, tmp_path):
-        if not config.REPO_ROOT.joinpath(".venv-neyta/bin/python").exists():
-            pytest.skip("no built environment")
         module.build(tmp_path)
         bundle = module.build(tmp_path)
         assert len(list(tmp_path.glob("*.app"))) == 1

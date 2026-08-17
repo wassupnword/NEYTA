@@ -18,9 +18,7 @@ separated/
 *.sqlite3-wal
 *.sqlite3-shm
 
-# The app bundle is generated and tied to this checkout's absolute path.
-# Rebuild it with tools/make_app.py rather than committing it.
-NEYTA.app/
+# Temporary icon resources produced while regenerating the checked-in app.
 *.iconset/
 
 # Test / tooling
