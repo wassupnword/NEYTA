@@ -78,7 +78,7 @@ def build_icon(destination: Path) -> bool:
     try:
         from PySide6.QtCore import QRectF, Qt
         from PySide6.QtGui import (
-            QBrush, QColor, QLinearGradient, QPainter, QPixmap,
+            QBrush, QColor, QLinearGradient, QPainter, QPainterPath, QPixmap,
         )
         from PySide6.QtWidgets import QApplication
     except ImportError:
@@ -109,21 +109,49 @@ def build_icon(destination: Path) -> bool:
         radius = size * 0.22
         painter.drawRoundedRect(QRectF(0, 0, size, size), radius, radius)
 
-        # A waveform, since that is what the app is about.
+        # A quarter rest, kept broad enough to remain legible at Dock size.
         painter.setPen(Qt.NoPen)
         painter.setBrush(QColor(96, 170, 255))
-        bars = 7
-        span = size * 0.62
-        left = (size - span) / 2
-        width = span / (bars * 2 - 1)
-        heights = (0.28, 0.55, 0.86, 1.0, 0.72, 0.44, 0.22)
-        for i, factor in enumerate(heights):
-            height = size * 0.42 * factor
-            x = left + i * width * 2
-            painter.drawRoundedRect(
-                QRectF(x, (size - height) / 2, width, height),
-                width / 2, width / 2,
-            )
+        rest = QPainterPath()
+        rest.moveTo(size * 0.61, size * 0.16)
+        rest.lineTo(size * 0.42, size * 0.40)
+        rest.lineTo(size * 0.57, size * 0.52)
+        rest.lineTo(size * 0.46, size * 0.61)
+        rest.cubicTo(
+            size * 0.42, size * 0.65,
+            size * 0.45, size * 0.69,
+            size * 0.50, size * 0.71,
+        )
+        rest.cubicTo(
+            size * 0.59, size * 0.75,
+            size * 0.60, size * 0.82,
+            size * 0.55, size * 0.87,
+        )
+        rest.cubicTo(
+            size * 0.50, size * 0.91,
+            size * 0.42, size * 0.86,
+            size * 0.43, size * 0.79,
+        )
+        rest.cubicTo(
+            size * 0.44, size * 0.74,
+            size * 0.49, size * 0.74,
+            size * 0.52, size * 0.78,
+        )
+        rest.cubicTo(
+            size * 0.51, size * 0.74,
+            size * 0.47, size * 0.72,
+            size * 0.42, size * 0.69,
+        )
+        rest.cubicTo(
+            size * 0.35, size * 0.65,
+            size * 0.36, size * 0.58,
+            size * 0.41, size * 0.54,
+        )
+        rest.lineTo(size * 0.49, size * 0.48)
+        rest.lineTo(size * 0.35, size * 0.40)
+        rest.lineTo(size * 0.52, size * 0.16)
+        rest.closeSubpath()
+        painter.drawPath(rest)
         painter.end()
 
         for scale, suffix in ((1, ""), (2, "@2x")):
