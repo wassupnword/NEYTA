@@ -5,8 +5,8 @@ videos, with genre, style, region, key and tempo attached. A shuffled track is
 an ordinary YouTube result, so it drops into the same list, the same format
 picker and the same drag tray as anything you searched for.
 
-The panel hides itself when there is no library, rather than offering a button
-that cannot work.
+On a clean checkout, the first press starts samplette-local and the panel
+attaches as soon as playable tracks exist.
 """
 
 from __future__ import annotations
@@ -117,7 +117,7 @@ class ShufflePanel(QWidget):
     # -- library ----------------------------------------------------------
 
     def attach(self, library: samplette.SampletteLibrary | None) -> None:
-        """Wire up a library, or hide if there is not one."""
+        """Wire up a library, or reset while the first-use build runs."""
         self.library = library
         self._matches = 0
         if library is None:

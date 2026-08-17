@@ -134,6 +134,11 @@ F minor between 90 and 100 BPM*, and keep digging inside that.
 A shuffled track is an ordinary YouTube result, so it flows into the same
 export dialog and drag tray as anything you searched for.
 
+The **Shuffle** button is always present on YouTube. On a clean checkout, its
+first press starts the local catalog builder; playable tracks begin appearing
+in about a minute and the button completes the shuffle automatically. The
+growing SQLite catalog stays local and is not committed to Git.
+
 Two honest caveats:
 
 - Only about 5% of the crawled rows have been resolved to a playable video

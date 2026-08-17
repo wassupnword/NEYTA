@@ -12,9 +12,11 @@ gives the sources back when you press the magnifier beside it.
 from __future__ import annotations
 
 import logging
+import sqlite3
+import subprocess
 from pathlib import Path
 
-from PySide6.QtCore import QPoint, Qt, Signal
+from PySide6.QtCore import QPoint, Qt, QTimer, Signal
 from PySide6.QtWidgets import (
     QDialog, QFileDialog, QGridLayout, QHBoxLayout, QHeaderView, QLabel,
     QLineEdit, QMainWindow, QMessageBox, QPushButton, QStackedWidget,
@@ -228,6 +230,11 @@ class MainWindow(QMainWindow):
         popup_layout = QVBoxLayout(self.shuffle_popup)
         popup_layout.setContentsMargins(12, 12, 12, 12)
         popup_layout.addWidget(self.shuffle_panel)
+        self._samplette_process: subprocess.Popen | None = None
+        self._shuffle_when_ready = False
+        self._samplette_timer = QTimer(self)
+        self._samplette_timer.setInterval(2000)
+        self._samplette_timer.timeout.connect(self._refresh_samplette_library)
 
         self.model = results_ui.ResultModel(self)
         self.table = QTableView()
@@ -376,7 +383,7 @@ class MainWindow(QMainWindow):
         self.page_bar.selected.connect(self.show_page)
         self.search.returnPressed.connect(self.run_search)
         self.search_button.clicked.connect(self.run_search)
-        self.shuffle_button.clicked.connect(self.shuffle_panel.shuffle)
+        self.shuffle_button.clicked.connect(self._shuffle)
         self.shuffle_settings_button.clicked.connect(self._toggle_shuffle_popup)
         self.table.selectionModel().currentRowChanged.connect(self._on_row_selected)
         self.table.doubleClicked.connect(self.preview_result_at)
@@ -662,15 +669,88 @@ class MainWindow(QMainWindow):
         self.shuffle_popup.show()
 
     def _shuffle_controls_visible(self) -> bool:
-        return self.tab_key == "youtube" and self.shuffle_panel.library is not None
+        return self.tab_key == "youtube"
 
     def _refresh_shuffle_controls(self) -> None:
         visible = self._shuffle_controls_visible()
+        building = self._samplette_timer.isActive()
+        has_library = self.shuffle_panel.library is not None
         self.shuffle_button.setVisible(visible)
         self.shuffle_settings_button.setVisible(visible)
-        self.shuffle_button.setEnabled(visible and self.shuffle_panel.can_shuffle())
+        self.shuffle_button.setText("Building…" if building else "Shuffle")
+        self.shuffle_button.setEnabled(
+            visible and not building
+            and (self.shuffle_panel.can_shuffle() if has_library else True)
+        )
+        self.shuffle_settings_button.setEnabled(visible and has_library)
+        self.shuffle_button.setToolTip(
+            "" if has_library else
+            "Build the local crate on first use, then shuffle YouTube tracks."
+        )
         if not visible:
             self.shuffle_popup.hide()
+
+    def _shuffle(self) -> None:
+        if self.shuffle_panel.library is not None:
+            self.shuffle_panel.shuffle()
+            return
+        self._shuffle_when_ready = True
+        self._start_samplette_library()
+
+    def _start_samplette_library(self) -> None:
+        script = config.SAMPLETTE_ROOT / "run.sh"
+        if not script.is_file():
+            self.statusBar().showMessage(
+                f"Shuffle needs samplette-local at {config.SAMPLETTE_ROOT}"
+            )
+            self._shuffle_when_ready = False
+            return
+        if (
+            self._samplette_process is None
+            or self._samplette_process.poll() is not None
+        ):
+            log_path = self.services.paths.logs / "samplette.log"
+            with log_path.open("ab") as output:
+                self._samplette_process = subprocess.Popen(
+                    [str(script), "--no-open"],
+                    cwd=config.SAMPLETTE_ROOT,
+                    stdout=output,
+                    stderr=subprocess.STDOUT,
+                    start_new_session=True,
+                )
+        self.statusBar().showMessage(
+            "Building the Shuffle library — first tracks take about a minute…"
+        )
+        self._samplette_timer.start()
+        self._refresh_shuffle_controls()
+
+    def _refresh_samplette_library(self) -> None:
+        if samplette.SampletteLibrary.available():
+            library = None
+            try:
+                library = samplette.SampletteLibrary()
+                if library.count() > 0:
+                    self.shuffle_panel.attach(library)
+                    self._samplette_timer.stop()
+                    self._refresh_shuffle_controls()
+                    self.statusBar().showMessage("Shuffle library is ready.")
+                    if self._shuffle_when_ready:
+                        self._shuffle_when_ready = False
+                        self.shuffle_panel.shuffle()
+                    return
+            except (samplette.SampletteUnavailable, sqlite3.Error):
+                log.exception("samplette library is not ready")
+            if library is not None:
+                library.close()
+
+        process = self._samplette_process
+        if process is not None and process.poll() is not None:
+            self._samplette_timer.stop()
+            self._shuffle_when_ready = False
+            self._refresh_shuffle_controls()
+            self.statusBar().showMessage(
+                "Could not build the Shuffle library; see samplette.log."
+            )
 
     def _refresh_phrase_engine(self) -> None:
         """Point the phrase panel and the search field at the chosen engine.
@@ -1255,4 +1335,12 @@ class MainWindow(QMainWindow):
         # the window closes.
         self.slskd.stop()
         self.lucida.stop()
+        process = self._samplette_process
+        if process is not None and process.poll() is None:
+            process.terminate()
+            try:
+                process.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait(timeout=3)
         super().closeEvent(event)

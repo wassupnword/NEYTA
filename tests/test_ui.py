@@ -335,6 +335,10 @@ class FakeShuffleTrack:
 
 
 class FakeShuffleLibrary:
+    @classmethod
+    def available(cls):
+        return True
+
     def facet(self, _name, _limit):
         return [("Brazil", 2), ("MPB", 1)]
 
@@ -352,6 +356,9 @@ class FakeShuffleLibrary:
             FakeShuffleTrack(make_result(id=f"vid-{mode}-{i}", title=f"Track {i}"))
             for i in range(n)
         ]
+
+    def close(self):
+        pass
 
 
 def attach_shuffle_library(window):
@@ -1205,6 +1212,38 @@ class TestWindow:
         assert not window.shuffle_button.isVisibleTo(window)
         assert not window.shuffle_settings_button.isVisibleTo(window)
         assert not window.shuffle_popup.isVisible()
+
+    def test_shuffle_is_present_before_the_local_library_exists(self, window):
+        window.shuffle_panel.attach(None)
+        window._refresh_shuffle_controls()
+        window.tabs.setCurrentIndex(0)
+        assert window.shuffle_panel.library is None
+        assert window.shuffle_button.isVisibleTo(window)
+        assert window.shuffle_button.isEnabled()
+        assert not window.shuffle_settings_button.isEnabled()
+
+    def test_first_shuffle_starts_the_local_library(self, window, monkeypatch):
+        window.shuffle_panel.attach(None)
+        window._refresh_shuffle_controls()
+        started = []
+        monkeypatch.setattr(
+            window, "_start_samplette_library", lambda: started.append(True)
+        )
+        window.tabs.setCurrentIndex(0)
+        window.shuffle_button.click()
+        assert started == [True]
+
+    def test_the_library_attaches_as_soon_as_tracks_are_ready(
+        self, window, monkeypatch
+    ):
+        from neyta.core import samplette
+
+        monkeypatch.setattr(samplette, "SampletteLibrary", FakeShuffleLibrary)
+        window._refresh_samplette_library()
+
+        assert isinstance(window.shuffle_panel.library, FakeShuffleLibrary)
+        assert window.shuffle_button.isEnabled()
+        assert window.shuffle_settings_button.isEnabled()
 
     def test_the_shuffle_settings_link_toggles_the_popup(self, window):
         attach_shuffle_library(window)
